@@ -21,7 +21,7 @@ func getEnv(key, fallback string) string {
 
 func init() {
 
-	username := getEnv("PG_USER", "postgres")
+	username := getEnv("PG_USER", "jingyi")
 	password := getEnv("PG_PASSWORD", "")
 	dbName := getEnv("PG_DATABSE", "jdlgj")
 	dbHost := getEnv("PG_HOST", "localhost")

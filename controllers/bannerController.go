@@ -5,10 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/jinzhu/gorm"
 )
-
-var db *gorm.DB
 
 //CreateBanner creates a new banner object
 func CreateBanner(c *gin.Context) {
@@ -21,16 +18,16 @@ func CreateBanner(c *gin.Context) {
 		return
 	}
 
-	db.Create(&banner)
+	models.GetDB().Create(&banner)
 	c.JSON(http.StatusCreated, &banner)
 }
 
 //GetBanners retrieves all banners
 func GetBanners(c *gin.Context) {
-	var banners []models.Banner
-	var bannerResources []models.BannerResource
+	banners := []models.Banner{}
+	bannerResources := []models.BannerResource{}
 
-	db.Find(&banners)
+	models.GetDB().Find(&banners)
 	if len(banners) <= 0 {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No banners found!"})
 		return
@@ -39,7 +36,7 @@ func GetBanners(c *gin.Context) {
 	for _, item := range banners {
 		bannerResources = append(bannerResources, models.BannerResource{ID: item.ID, Title: item.Title, ImageURI: item.ImageURI, Link: item.Link, Visible: item.Visible})
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": bannerResources})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "banners": bannerResources})
 }
 
 //UpdateBanner updates an existing banner
@@ -47,13 +44,13 @@ func UpdateBanner(c *gin.Context) {
 	id := c.Param("id")
 	var banner models.Banner
 
-	if err := db.Where("id = ?", id).First(&banner).Error; err != nil {
+	if err := models.GetDB().Where("id = ?", id).First(&banner).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find banner!"})
 		return
 	}
 
 	c.BindJSON(&banner)
-	db.Save(&banner)
+	models.GetDB().Save(&banner)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "banner updated successfully!"})
 }
 
@@ -62,11 +59,11 @@ func DeleteBanner(c *gin.Context) {
 	id := c.Param("id")
 	var banner models.Banner
 
-	if err := db.Where("id = ?", id).First(&banner).Error; err != nil {
+	if err := models.GetDB().Where("id = ?", id).First(&banner).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find banner!"})
 		return
 	}
 
-	db.Delete(&banner)
+	models.GetDB().Delete(&banner)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Banner deleted successfully!"})
 }

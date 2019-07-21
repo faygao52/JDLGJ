@@ -14,33 +14,33 @@ func main() {
 
 	v1 := router.Group("/api/v1")
 	{
-		// lawFirm := v1.Group("/law-firm")
-		// {
-		// 	lawFirm.GET("/", getLawFirms)
-		// 	lawFirm.GET("/:id", getLawFirm)
-		// 	lawFirm.POST("/", createLawFirm)
-		// 	lawFirm.PUT("/:id", updateLawFirm)
-		// 	lawFirm.DELETE("/:id", deleteLawFirm)
-		// }
+		lawFirm := v1.Group("/law-firms")
+		{
+			lawFirm.GET("/", controllers.GetLawFirms)
+			lawFirm.GET("/:id", controllers.GetLawFirm)
+			lawFirm.POST("/", controllers.CreateLawFirm)
+			lawFirm.PUT("/:id", controllers.UpdateLawFirm)
+			lawFirm.DELETE("/:id", controllers.DeleteLawFirm)
+		}
 
-		// serviceCenter := v1.Group("/service-center")
-		// {
-		// 	serviceCenter.GET("/", getServiceCenters)
-		// 	serviceCenter.GET("/:id", getServiceCenter)
-		// 	serviceCenter.POST("/", createServiceCenter)
-		// 	serviceCenter.PUT("/:id", updateServiceCenter)
-		// 	serviceCenter.DELETE("/:id", deleteServiceCenter)
-		// }
+		serviceCenter := v1.Group("/service-centers")
+		{
+			serviceCenter.GET("/", controllers.GetServiceCenters)
+			serviceCenter.GET("/:id", controllers.GetServiceCenter)
+			serviceCenter.POST("/", controllers.CreateServiceCenter)
+			serviceCenter.PUT("/:id", controllers.UpdateServiceCenter)
+			serviceCenter.DELETE("/:id", controllers.DeleteServiceCenter)
+		}
 
-		// solvedCase := v1.Group("/case")
-		// {
-		// 	solvedCase.GET("/", getBanners)
-		// 	solvedCase.POST("/", createCase)
-		// 	solvedCase.PUT("/:id", updateCase)
-		// 	solvedCase.DELETE("/:id", deleteCase)
-		// }
+		solvedCase := v1.Group("/cases")
+		{
+			solvedCase.GET("/", controllers.GetCases)
+			solvedCase.POST("/", controllers.CreateCase)
+			solvedCase.PUT("/:id", controllers.UpdateCase)
+			solvedCase.DELETE("/:id", controllers.DeleteCase)
+		}
 
-		banner := v1.Group("/banner")
+		banner := v1.Group("/banners")
 		{
 			banner.GET("/", controllers.GetBanners)
 			banner.POST("/", controllers.CreateBanner)
