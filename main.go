@@ -12,6 +12,8 @@ func main() {
 
 	router := gin.Default()
 
+	router.GET("/health", controllers.HealthGET)
+
 	v1 := router.Group("/api/v1")
 	{
 		lawFirm := v1.Group("/law-firms")

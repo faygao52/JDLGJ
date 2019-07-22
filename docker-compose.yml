@@ -10,6 +10,12 @@ services:
       dockerfile: DockerfileWeb.Dockerfile
     container_name: jdlvgj
     command: ./jdlgj
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 1m
+      timeout: 30s
+      retries: 3
+      start_period: 330s
     restart: on-failure
     depends_on:
       - postgres
@@ -27,7 +33,7 @@ services:
       - 8000:8000
   postgres:
     image: postgres:11.4
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 30s
