@@ -1,14 +1,16 @@
 version: '2.4'
 
 services:
-  jdlvgj:
-    image: jdlvgj
+  jdlgj:
+    image: jdlgj:${VERSION}
     environment:
       ENV: development
     build:
       context: .
       dockerfile: DockerfileWeb.Dockerfile
-    container_name: jdlvgj
+    volumes:
+      - ./server:/go/src/app
+    container_name: jdlgj
     command: ./jdlgj
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
@@ -18,20 +20,21 @@ services:
       start_period: 330s
     restart: on-failure
     depends_on:
-      - postgres
-    links:
-      - postgres
+      postgres : 
+        condition: service_healthy
     environment:
       ENV: development
       PORT: 8000
       PG_USER: postgres
-      PG_PASSWORD: secret
+      PG_PASSWORD: root
       PG_HOST: postgres
-      PG_PORT: 5432
-      PG_DATABSE: jdlgj
+      PG_DATABSE: jdlgj_development
+    networks:
+      - development
     ports:
       - 8000:8000
   postgres:
+    container_name: pg
     image: postgres:11.4
     restart: on-failure
     healthcheck:
@@ -40,8 +43,13 @@ services:
       timeout: 30s
       retries: 3
     environment:
-      POSTGRES_PASSWORD: secret
+      POSTGRES_PASSWORD: root
       POSTGRES_USER: postgres
-      POSTGRES_DB: jdlgj
+      POSTGRES_DB: jdlgj_development
     ports:
       - 5432:5432
+    networks:
+      - development
+networks:
+  development:
+    name: development
