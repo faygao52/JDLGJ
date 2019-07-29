@@ -12,3 +12,5 @@
 *.out
 
 *.env
+docker-compose.production.yml
+/nginx

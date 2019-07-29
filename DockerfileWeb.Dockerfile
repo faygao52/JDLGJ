@@ -14,4 +14,4 @@ ADD . /app
 RUN go build
 
 # Expose a port to run our application
-EXPOSE 8000
+EXPOSE 8080

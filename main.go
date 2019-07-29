@@ -3,6 +3,7 @@ package main
 import (
 	"jdlgj/controllers"
 	"log"
+	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -51,5 +52,13 @@ func main() {
 		}
 	}
 
-	router.Run(":8000")
+	certsFolder := "./nginx/certs/api.jdlvguanjia.com/"
+	router.RunTLS(":"+getEnv("PORT", "jingyi"), certsFolder+"2544652_api.jdlvguanjia.com.pem", certsFolder+"2544652_api.jdlvguanjia.com.key")
+}
+
+func getEnv(key, fallback string) string {
+	if value, ok := os.LookupEnv(key); ok {
+		return value
+	}
+	return fallback
 }

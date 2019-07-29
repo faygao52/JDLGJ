@@ -24,7 +24,7 @@ services:
         condition: service_healthy
     environment:
       ENV: development
-      PORT: 8000
+      PORT: 8080
       PG_USER: postgres
       PG_PASSWORD: root
       PG_HOST: postgres
@@ -32,7 +32,7 @@ services:
     networks:
       - development
     ports:
-      - 8000:8000
+      - 8080:8080
   postgres:
     container_name: pg
     image: postgres:11.4
