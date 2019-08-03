@@ -28,7 +28,6 @@ func init() {
 	dbHost := getEnv("PG_HOST", "localhost")
 
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password) //Build connection string
-	fmt.Println(dbURI)
 
 	conn, err := gorm.Open("postgres", dbURI)
 	if err != nil {

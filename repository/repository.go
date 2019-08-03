@@ -1,12 +1,12 @@
 package repository
 
 import (
-	"fmt"
-	"jdlgj/repository/db"
 	"jdlgj/models/base"
-	uuid "github.com/satori/go.uuid"
-	"github.com/gin-gonic/gin"
+	"jdlgj/repository/db"
+
 	p "github.com/Prabandham/paginator"
+	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 //Create a new record if it is not exist
@@ -17,7 +17,7 @@ func Create(value base.ModelInterface) interface{} {
 
 //FindByID returns a record by its uuid
 func FindByID(value base.ModelInterface, id uuid.UUID) (interface{}, error) {
-	err := db.GetDB().Where("id = ?", id).First(value).Error;
+	err := db.GetDB().Where("id = ?", id).First(value).Error
 	return value.ToResource(), err
 }
 
@@ -42,7 +42,6 @@ func DeleteByID(value base.ModelInterface, id uuid.UUID) error {
 
 //List all records with pagination
 func List(collection interface{}, page string, size string, orderBy []string) *p.Data {
-	fmt.Printf("page: %s; size: %s; orderBy: %s;", page, size, orderBy)
 	paginator := p.Paginator{
 		DB:      db.GetDB(),
 		Page:    page,
