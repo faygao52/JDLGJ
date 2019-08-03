@@ -1,8 +1,12 @@
 package controllers
 
 import (
+	"strings"
 	"jdlgj/models"
+	"jdlgj/models/base"
+	"jdlgj/repository"
 	"net/http"
+	uuid "github.com/satori/go.uuid"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,66 +22,91 @@ func CreateServiceCenter(c *gin.Context) {
 		return
 	}
 
-	models.GetDB().Create(&serviceCenter)
-	c.JSON(http.StatusCreated, &serviceCenter)
+	var resource = repository.Create(&serviceCenter)
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data":resource})
 }
 
-//GetServiceCenters retrieves all ServiceCenters
-func GetServiceCenters(c *gin.Context) {
+//ListServiceCenters retrieves all ServiceCenters
+func ListServiceCenters(c *gin.Context) {
+	page := c.DefaultQuery("page", "0")
+	size := c.DefaultQuery("size", "10")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
 	serviceCenters := []models.ServiceCenter{}
+	data := repository.List(&serviceCenters, page, size, orderBy)
+
 	serviceCenterResources := []models.ServiceCenterResource{}
-
-	models.GetDB().Find(&serviceCenters)
-	if len(serviceCenters) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No service centers found!"})
-		return
-	}
-
 	for _, item := range serviceCenters {
-		serviceCenterResources = append(serviceCenterResources, models.ServiceCenterResource{ID: item.ID, Name: item.Name, WorkingHour: item.WorkingHour, Address: item.Address, Contact: item.Contact})
+		resource,ok := item.ToResource().(models.ServiceCenterResource)
+		if ok {
+			serviceCenterResources = append(serviceCenterResources, resource)
+		}
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "ServiceCenters": serviceCenterResources})
+	
+	paginationResource := base.PaginationResource {
+		TotalElement: data.TotalRecords,
+		DataCollection: serviceCenterResources,
+		CurrentPage: data.CurrentPage,
+		TotalPages: data.TotalPages,
+	}
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
 }
 
 //GetServiceCenter retrieves a service center by id
 func GetServiceCenter(c *gin.Context) {
-	id := c.Param("id")
+	id, err :=  uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var serviceCenter models.ServiceCenter
 
-	if err := models.GetDB().Where("id = ?", id).First(&serviceCenter).Error; err != nil {
+	resource, err := repository.FindByID(&serviceCenter, id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find service center!"})
 		return
 	}
 
-	serviceCenterResource := models.ServiceCenterResource{ID: serviceCenter.ID, Name: serviceCenter.Name, WorkingHour: serviceCenter.WorkingHour, Address: serviceCenter.Address, Contact: serviceCenter.Contact}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": serviceCenterResource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //UpdateServiceCenter updates an existing ServiceCenter
 func UpdateServiceCenter(c *gin.Context) {
-	id := c.Param("id")
-	var serviceCenter models.ServiceCenter
+	id, err :=  uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	if err := models.GetDB().Where("id = ?", id).First(&serviceCenter).Error; err != nil {
+	var serviceCenter models.ServiceCenter
+	resource, err := repository.Update(c, &serviceCenter, id)
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find service center!"})
 		return
 	}
 
-	c.BindJSON(&serviceCenter)
-	models.GetDB().Save(&serviceCenter)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Service center updated successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //DeleteServiceCenter deletes an existing ServiceCenter
 func DeleteServiceCenter(c *gin.Context) {
-	id := c.Param("id")
+	id, err :=  uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var serviceCenter models.ServiceCenter
 
-	if err := models.GetDB().Where("id = ?", id).First(&serviceCenter).Error; err != nil {
+	if err := repository.DeleteByID(&serviceCenter, id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find service center!"})
 		return
 	}
 
-	models.GetDB().Delete(&serviceCenter)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Serivce center deleted successfully!"})
 }

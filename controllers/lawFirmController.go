@@ -2,9 +2,14 @@ package controllers
 
 import (
 	"jdlgj/models"
+	"jdlgj/models/base"
+	"jdlgj/repository"
+	"strings"
+
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 //CreateLawFirm creates a new LawFirm object
@@ -18,66 +23,90 @@ func CreateLawFirm(c *gin.Context) {
 		return
 	}
 
-	models.GetDB().Create(&lawFirm)
-	c.JSON(http.StatusCreated, &lawFirm)
+	var resource = repository.Create(&lawFirm)
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
 }
 
-//GetLawFirms retrieves all LawFirms
-func GetLawFirms(c *gin.Context) {
+//ListLawFirms retrieves all LawFirms
+func ListLawFirms(c *gin.Context) {
+	page := c.DefaultQuery("page", "0")
+	size := c.DefaultQuery("size", "10")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
 	lawFirms := []models.LawFirm{}
+	data := repository.List(&lawFirms, page, size, orderBy)
+
 	lawFirmResources := []models.LawFirmResource{}
-
-	models.GetDB().Find(&lawFirms)
-	if len(lawFirms) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No law firms found!"})
-		return
-	}
-
 	for _, item := range lawFirms {
-		lawFirmResources = append(lawFirmResources, models.LawFirmResource{ID: item.ID, Title: item.Title, WorkingHour: item.WorkingHour, Address: item.Address, Description: item.Description, Contact: item.Contact, Review: item.Review, Services: item.Services})
+		resource, ok := item.ToResource().(models.LawFirmResource)
+		if ok {
+			lawFirmResources = append(lawFirmResources, resource)
+		}
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "lawFirms": lawFirmResources})
+
+	paginationResource := base.PaginationResource{
+		TotalElement:   data.TotalRecords,
+		DataCollection: lawFirmResources,
+		CurrentPage:    data.CurrentPage,
+		TotalPages:     data.TotalPages,
+	}
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
 }
 
 //GetLawFirm retrieve law firm by its id
 func GetLawFirm(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var lawFirm models.LawFirm
 
-	if err := models.GetDB().Where("id = ?", id).First(&lawFirm).Error; err != nil {
+	resource, err := repository.FindByID(&lawFirm, id)
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find law firm!"})
 		return
 	}
 
-	lawFirmResource := models.LawFirmResource{ID: lawFirm.ID, Title: lawFirm.Title, WorkingHour: lawFirm.WorkingHour, Address: lawFirm.Address, Description: lawFirm.Description, Contact: lawFirm.Contact, Review: lawFirm.Review, Services: lawFirm.Services}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": lawFirmResource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //UpdateLawFirm updates an existing LawFirm
 func UpdateLawFirm(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var lawFirm models.LawFirm
+	resource, err := repository.Update(c, &lawFirm, id)
 
-	if err := models.GetDB().Where("id = ?", id).First(&lawFirm).Error; err != nil {
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find law firm!"})
 		return
 	}
 
-	c.BindJSON(&lawFirm)
-	models.GetDB().Save(&lawFirm)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Law firm updated successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //DeleteLawFirm deletes an existing LawFirm
 func DeleteLawFirm(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var lawFirm models.LawFirm
 
-	if err := models.GetDB().Where("id = ?", id).First(&lawFirm).Error; err != nil {
+	if err := repository.DeleteByID(&lawFirm, id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find law firm!"})
 		return
 	}
 
-	models.GetDB().Delete(&lawFirm)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Law Firm deleted successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Law firm deleted successfully!"})
 }

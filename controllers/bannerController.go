@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"jdlgj/models"
+	"jdlgj/models/base"
+	"jdlgj/repository"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 //CreateBanner creates a new banner object
@@ -18,52 +22,92 @@ func CreateBanner(c *gin.Context) {
 		return
 	}
 
-	models.GetDB().Create(&banner)
-	c.JSON(http.StatusCreated, &banner)
+	var resource = repository.Create(&banner)
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
 }
 
-//GetBanners retrieves all banners
-func GetBanners(c *gin.Context) {
+//ListBanners retrieves all banners
+func ListBanners(c *gin.Context) {
+	page := c.DefaultQuery("page", "0")
+	size := c.DefaultQuery("size", "10")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
 	banners := []models.Banner{}
-	bannerResources := []models.BannerResource{}
+	data := repository.List(&banners, page, size, orderBy)
 
-	models.GetDB().Find(&banners)
-	if len(banners) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No banners found!"})
+	bannerResources := []models.BannerResource{}
+	for _, item := range banners {
+		resource, ok := item.ToResource().(models.BannerResource)
+		if ok {
+			bannerResources = append(bannerResources, resource)
+		}
+	}
+
+	paginationResource := base.PaginationResource{
+		TotalElement:   data.TotalRecords,
+		DataCollection: bannerResources,
+		CurrentPage:    data.CurrentPage,
+		TotalPages:     data.TotalPages,
+	}
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+}
+
+//GetBanner retrieve banner by id
+func GetBanner(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
 
-	for _, item := range banners {
-		bannerResources = append(bannerResources, models.BannerResource{ID: item.ID, Title: item.Title, ImageURI: item.ImageURI, Link: item.Link, Visible: item.Visible})
+	var banner models.Banner
+
+	resource, err := repository.FindByID(&banner, id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find banner!"})
+		return
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "banners": bannerResources})
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //UpdateBanner updates an existing banner
 func UpdateBanner(c *gin.Context) {
-	id := c.Param("id")
-	var banner models.Banner
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	if err := models.GetDB().Where("id = ?", id).First(&banner).Error; err != nil {
+	var banner models.Banner
+	resource, err := repository.Update(c, &banner, id)
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find banner!"})
 		return
 	}
 
-	c.BindJSON(&banner)
-	models.GetDB().Save(&banner)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "banner updated successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //DeleteBanner deletes an existing banner
 func DeleteBanner(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var banner models.Banner
 
-	if err := models.GetDB().Where("id = ?", id).First(&banner).Error; err != nil {
+	if err := repository.DeleteByID(&banner, id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find banner!"})
 		return
 	}
 
-	models.GetDB().Delete(&banner)
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Banner deleted successfully!"})
 }

@@ -2,9 +2,13 @@ package controllers
 
 import (
 	"jdlgj/models"
+	"jdlgj/models/base"
+	"jdlgj/repository"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	uuid "github.com/satori/go.uuid"
 )
 
 //CreateCase creates a new case object
@@ -18,52 +22,91 @@ func CreateCase(c *gin.Context) {
 		return
 	}
 
-	models.GetDB().Create(&caseStudy)
-	c.JSON(http.StatusCreated, &caseStudy)
+	var resource = repository.Create(&caseStudy)
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
 }
 
-//GetCases retrieves all cases
-func GetCases(c *gin.Context) {
+//ListCases retrieves all cases
+func ListCases(c *gin.Context) {
+	page := c.DefaultQuery("page", "0")
+	size := c.DefaultQuery("size", "10")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
 	cases := []models.Case{}
-	caseResources := []models.CaseResource{}
+	data := repository.List(&cases, page, size, orderBy)
 
-	models.GetDB().Find(&cases)
-	if len(cases) <= 0 {
-		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "No cases found!"})
+	caseResources := []models.CaseResource{}
+	for _, item := range cases {
+		resource, ok := item.ToResource().(models.CaseResource)
+		if ok {
+			caseResources = append(caseResources, resource)
+		}
+	}
+
+	paginationResource := base.PaginationResource{
+		TotalElement:   data.TotalRecords,
+		DataCollection: caseResources,
+		CurrentPage:    data.CurrentPage,
+		TotalPages:     data.TotalPages,
+	}
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+}
+
+//GetCase retrieve case by id
+func GetCase(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	var caseModel models.Case
+	resource, err := repository.FindByID(&caseModel, id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find case!"})
 		return
 	}
 
-	for _, item := range cases {
-		caseResources = append(caseResources, models.CaseResource{ID: item.ID, Catalog: item.Catalog, Question: item.Question, Answer: item.Answer, Contact: item.Contact, Lawyer: item.Lawyer})
-	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "cases": caseResources})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //UpdateCase updates an existing case
 func UpdateCase(c *gin.Context) {
-	id := c.Param("id")
-	var caseStudy models.Case
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 
-	if err := models.GetDB().Where("id = ?", id).First(&caseStudy).Error; err != nil {
+	var caseStudy models.Case
+	resource, err := repository.Update(c, &caseStudy, id)
+
+	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find case!"})
 		return
 	}
 
-	c.BindJSON(&caseStudy)
-	models.GetDB().Save(&caseStudy)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "case updated successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
 }
 
 //DeleteCase deletes an existing case
 func DeleteCase(c *gin.Context) {
-	id := c.Param("id")
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
 	var caseStudy models.Case
 
-	if err := models.GetDB().Where("id = ?", id).First(&caseStudy).Error; err != nil {
+	if err := repository.DeleteByID(&caseStudy, id); err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find case!"})
 		return
 	}
 
-	models.GetDB().Delete(&caseStudy)
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "case deleted successfully!"})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Case deleted successfully!"})
 }
