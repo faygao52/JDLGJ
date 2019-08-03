@@ -2,8 +2,9 @@ package db
 
 import (
 	"fmt"
-	"os"
 	"jdlgj/models"
+	"os"
+
 	"github.com/jinzhu/gorm"
 
 	//postgres import
@@ -35,7 +36,7 @@ func init() {
 	}
 
 	db = conn
-	db.Debug().AutoMigrate(&models.LawFirm{}, &models.Case{}, &models.ServiceCenter{}, &models.Banner{}) //Database migration
+	db.Debug().AutoMigrate(&models.LawFirm{}, &models.Case{}, &models.ServiceCenter{}, &models.Banner{}, &models.Message{}) //Database migration
 }
 
 //GetDB ...

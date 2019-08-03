@@ -5,11 +5,10 @@ services:
     image: jingyigao/jdlgj:${VERSION}
     environment:
       ENV: development
+    command: ./jdlgj
     build:
       context: .
       dockerfile: DockerfileWeb.Dockerfile
-    volumes:
-      - ./server:/go/src/app
     container_name: jdlgj
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
