@@ -27,7 +27,7 @@ type (
 )
 
 // ToResource Convert banner to external representation
-func (b *Banner) ToResource() interface{} {
+func (b Banner) ToResource() interface{} {
 	return BannerResource{
 		ID:       b.ID,
 		Title:    b.Title,

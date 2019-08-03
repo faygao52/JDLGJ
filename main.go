@@ -19,7 +19,7 @@ func main() {
 	{
 		lawFirm := v1.Group("/law-firms")
 		{
-			lawFirm.GET("/", controllers.ListLawFirms)
+			lawFirm.GET("", controllers.ListLawFirms)
 			lawFirm.GET("/:id", controllers.GetLawFirm)
 			lawFirm.POST("/", controllers.CreateLawFirm)
 			lawFirm.PUT("/:id", controllers.UpdateLawFirm)
@@ -28,7 +28,7 @@ func main() {
 
 		serviceCenter := v1.Group("/service-centers")
 		{
-			serviceCenter.GET("/", controllers.ListServiceCenters)
+			serviceCenter.GET("", controllers.ListServiceCenters)
 			serviceCenter.GET("/:id", controllers.GetServiceCenter)
 			serviceCenter.POST("/", controllers.CreateServiceCenter)
 			serviceCenter.PUT("/:id", controllers.UpdateServiceCenter)
@@ -37,7 +37,7 @@ func main() {
 
 		solvedCase := v1.Group("/cases")
 		{
-			solvedCase.GET("/", controllers.ListCases)
+			solvedCase.GET("", controllers.ListCases)
 			solvedCase.GET("/:id", controllers.GetCase)
 			solvedCase.POST("/", controllers.CreateCase)
 			solvedCase.PUT("/:id", controllers.UpdateCase)
@@ -46,11 +46,18 @@ func main() {
 
 		banner := v1.Group("/banners")
 		{
-			banner.GET("/", controllers.ListBanners)
+			banner.GET("", controllers.ListBanners)
 			banner.GET("/:id", controllers.GetBanner)
 			banner.POST("/", controllers.CreateBanner)
 			banner.PUT("/:id", controllers.UpdateBanner)
 			banner.DELETE("/:id", controllers.DeleteBanner)
+		}
+
+		message := v1.Group("/messages")
+		{
+			message.GET("", controllers.ListMessages)
+			message.POST("/", controllers.CreateMessage)
+			message.DELETE("/:id", controllers.DeleteMessage)
 		}
 	}
 

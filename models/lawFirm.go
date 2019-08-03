@@ -20,7 +20,7 @@ type (
 		Icon        string  `json:"icon"`
 	}
 
-	//LawFirmResource representa law firm resource for external usage
+	//LawFirmResource represents law firm resource for external usage
 	LawFirmResource struct {
 		ID          uuid.UUID `json:"id"`
 		Title       string    `json:"title"`
@@ -35,7 +35,7 @@ type (
 )
 
 // ToResource Convert LawFirm to external representation
-func (lf *LawFirm) ToResource() interface{} {
+func (lf LawFirm) ToResource() interface{} {
 	return LawFirmResource{
 		ID:          lf.ID,
 		Title:       lf.Title,

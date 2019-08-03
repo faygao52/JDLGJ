@@ -31,7 +31,7 @@ type (
 )
 
 // ToResource Convert case to external representation
-func (c *Case) ToResource() interface{} {
+func (c Case) ToResource() interface{} {
 	return CaseResource{
 		ID:        c.ID,
 		Catalog:   c.Catalog,
