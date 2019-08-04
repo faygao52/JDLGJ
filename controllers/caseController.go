@@ -23,7 +23,7 @@ func CreateCase(c *gin.Context) {
 	}
 
 	var resource = repository.Create(&caseStudy)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "case": resource})
 }
 
 //ListCases retrieves all cases
@@ -48,7 +48,7 @@ func ListCases(c *gin.Context) {
 		CurrentPage:    data.CurrentPage,
 		TotalPages:     data.TotalPages,
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+	c.JSON(http.StatusOK, paginationResource)
 }
 
 //GetCase retrieve case by id
@@ -67,7 +67,7 @@ func GetCase(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "case": resource})
 }
 
 //UpdateCase updates an existing case
@@ -88,7 +88,7 @@ func UpdateCase(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "case": resource})
 }
 
 //DeleteCase deletes an existing case

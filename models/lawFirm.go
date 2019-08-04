@@ -18,6 +18,7 @@ type (
 		Reviews     float32 `json:"review"`
 		Services    int     `jons:"services"`
 		Icon        string  `json:"icon"`
+		CoverImage  string  `json:"coverImage"`
 	}
 
 	//LawFirmResource represents law firm resource for external usage
@@ -31,6 +32,7 @@ type (
 		Reviews     float32   `json:"review"`
 		Services    int       `jons:"services"`
 		Icon        string    `json:"icon"`
+		CoverImage  string    `json:"coverImage"`
 	}
 )
 
@@ -46,5 +48,6 @@ func (lf LawFirm) ToResource() interface{} {
 		Reviews:     lf.Reviews,
 		Services:    lf.Services,
 		Icon:        lf.Icon,
+		CoverImage:  lf.CoverImage,
 	}
 }

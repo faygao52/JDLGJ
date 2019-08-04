@@ -24,7 +24,7 @@ func CreateLawFirm(c *gin.Context) {
 	}
 
 	var resource = repository.Create(&lawFirm)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "lawFirm": resource})
 }
 
 //ListLawFirms retrieves all LawFirms
@@ -49,7 +49,7 @@ func ListLawFirms(c *gin.Context) {
 		CurrentPage:    data.CurrentPage,
 		TotalPages:     data.TotalPages,
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+	c.JSON(http.StatusOK, paginationResource)
 }
 
 //GetLawFirm retrieve law firm by its id
@@ -69,7 +69,7 @@ func GetLawFirm(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "lawFirm": resource})
 }
 
 //UpdateLawFirm updates an existing LawFirm
@@ -89,7 +89,7 @@ func UpdateLawFirm(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "lawFirm": resource})
 }
 
 //DeleteLawFirm deletes an existing LawFirm

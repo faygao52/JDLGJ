@@ -23,7 +23,7 @@ func CreateMessage(c *gin.Context) {
 	}
 
 	var resource = repository.Create(&message)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": resource})
 }
 
 //ListMessages retrieves all messages
@@ -48,7 +48,7 @@ func ListMessages(c *gin.Context) {
 		CurrentPage:    data.CurrentPage,
 		TotalPages:     data.TotalPages,
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+	c.JSON(http.StatusOK, paginationResource)
 }
 
 //DeleteMessage deletes an existing message

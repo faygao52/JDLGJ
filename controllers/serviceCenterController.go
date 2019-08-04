@@ -1,11 +1,12 @@
 package controllers
 
 import (
-	"strings"
 	"jdlgj/models"
 	"jdlgj/models/base"
 	"jdlgj/repository"
 	"net/http"
+	"strings"
+
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/gin-gonic/gin"
@@ -23,7 +24,7 @@ func CreateServiceCenter(c *gin.Context) {
 	}
 
 	var resource = repository.Create(&serviceCenter)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data":resource})
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "serviceCenter": resource})
 }
 
 //ListServiceCenters retrieves all ServiceCenters
@@ -36,24 +37,24 @@ func ListServiceCenters(c *gin.Context) {
 
 	serviceCenterResources := []models.ServiceCenterResource{}
 	for _, item := range serviceCenters {
-		resource,ok := item.ToResource().(models.ServiceCenterResource)
+		resource, ok := item.ToResource().(models.ServiceCenterResource)
 		if ok {
 			serviceCenterResources = append(serviceCenterResources, resource)
 		}
 	}
-	
-	paginationResource := base.PaginationResource {
-		TotalElement: data.TotalRecords,
+
+	paginationResource := base.PaginationResource{
+		TotalElement:   data.TotalRecords,
 		DataCollection: serviceCenterResources,
-		CurrentPage: data.CurrentPage,
-		TotalPages: data.TotalPages,
+		CurrentPage:    data.CurrentPage,
+		TotalPages:     data.TotalPages,
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+	c.JSON(http.StatusOK, paginationResource)
 }
 
 //GetServiceCenter retrieves a service center by id
 func GetServiceCenter(c *gin.Context) {
-	id, err :=  uuid.FromString(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -68,12 +69,12 @@ func GetServiceCenter(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "serviceCenter": resource})
 }
 
 //UpdateServiceCenter updates an existing ServiceCenter
 func UpdateServiceCenter(c *gin.Context) {
-	id, err :=  uuid.FromString(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -89,12 +90,12 @@ func UpdateServiceCenter(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "serviceCenter": resource})
 }
 
 //DeleteServiceCenter deletes an existing ServiceCenter
 func DeleteServiceCenter(c *gin.Context) {
-	id, err :=  uuid.FromString(c.Param("id"))
+	id, err := uuid.FromString(c.Param("id"))
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

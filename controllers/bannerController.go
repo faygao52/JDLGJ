@@ -23,7 +23,7 @@ func CreateBanner(c *gin.Context) {
 	}
 
 	var resource = repository.Create(&banner)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "data": resource})
+	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "banner": resource})
 }
 
 //ListBanners retrieves all banners
@@ -48,7 +48,7 @@ func ListBanners(c *gin.Context) {
 		CurrentPage:    data.CurrentPage,
 		TotalPages:     data.TotalPages,
 	}
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": paginationResource})
+	c.JSON(http.StatusOK, paginationResource)
 }
 
 //GetBanner retrieve banner by id
@@ -69,7 +69,7 @@ func GetBanner(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "banner": resource})
 }
 
 //UpdateBanner updates an existing banner
@@ -90,7 +90,7 @@ func UpdateBanner(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "data": resource})
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "banner": resource})
 }
 
 //DeleteBanner deletes an existing banner
