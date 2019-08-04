@@ -31,7 +31,7 @@ func CreateLawFirm(c *gin.Context) {
 func ListLawFirms(c *gin.Context) {
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
-	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "reviews desc"), ",")
 	lawFirms := []models.LawFirm{}
 	data := repository.List(&lawFirms, page, size, orderBy)
 

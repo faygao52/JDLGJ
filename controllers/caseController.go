@@ -30,7 +30,7 @@ func CreateCase(c *gin.Context) {
 func ListCases(c *gin.Context) {
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
-	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "createdAt desc"), ",")
 	cases := []models.Case{}
 	data := repository.List(&cases, page, size, orderBy)
 
