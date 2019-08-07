@@ -43,10 +43,10 @@ func ListBanners(c *gin.Context) {
 	}
 
 	paginationResource := base.PaginationResource{
-		TotalElement:   data.TotalRecords,
+		TotalElement:   data.TotalRecord,
 		DataCollection: bannerResources,
-		CurrentPage:    data.CurrentPage,
-		TotalPages:     data.TotalPages,
+		CurrentPage:    data.Page,
+		TotalPages:     data.TotalPage,
 	}
 	c.JSON(http.StatusOK, paginationResource)
 }

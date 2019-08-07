@@ -1,10 +1,12 @@
 package repository
 
 import (
+	"fmt"
 	"jdlgj/models/base"
 	"jdlgj/repository/db"
+	"strconv"
 
-	p "github.com/Prabandham/paginator"
+	"github.com/biezhi/gorm-paginator/pagination"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -41,12 +43,37 @@ func DeleteByID(value base.ModelInterface, id uuid.UUID) error {
 }
 
 //List all records with pagination
-func List(collection interface{}, page string, size string, orderBy []string) *p.Data {
-	paginator := p.Paginator{
+func List(collection interface{}, page string, size string, orderBy []string) *pagination.Paginator {
+	pageInt, _ := strconv.Atoi(page)
+	limit, _ := strconv.Atoi(size)
+	return pagination.Paging(&pagination.Param{
 		DB:      db.GetDB(),
-		Page:    page,
-		PerPage: size,
-		OrderBy: orderBy,
+		Page:    pageInt,
+		Limit:   limit,
+		OrderBy: []string{"id desc"},
+		ShowSQL: true,
+	}, collection)
+}
+
+//SearchAll Search for results and return pagination result
+func SearchAll(collection interface{}, page string, size string, orderBy []string, query string, fields []string) *pagination.Paginator {
+	db := db.GetDB()
+	fmt.Printf("query: %s", query)
+
+	for i, field := range fields {
+		if i == 0 {
+			db = db.Where(field+" LIKE ?", "%"+query+"%")
+		} else {
+			db = db.Or(field+" LIKE ?", "%"+query+"%")
+		}
 	}
-	return paginator.Paginate(collection)
+	pageInt, _ := strconv.Atoi(page)
+	limit, _ := strconv.Atoi(size)
+	return pagination.Paging(&pagination.Param{
+		DB:      db,
+		Page:    pageInt,
+		Limit:   limit,
+		OrderBy: []string{"id desc"},
+		ShowSQL: false,
+	}, collection)
 }

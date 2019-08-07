@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/biezhi/gorm-paginator/pagination"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -28,11 +29,18 @@ func CreateCase(c *gin.Context) {
 
 //ListCases retrieves all cases
 func ListCases(c *gin.Context) {
+	var data *pagination.Paginator
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
 	orderBy := strings.Split(c.DefaultQuery("orderBy", "createdAt desc"), ",")
+	query := c.Query("q")
 	cases := []models.Case{}
-	data := repository.List(&cases, page, size, orderBy)
+
+	if query != "" {
+		data = repository.SearchAll(&cases, page, size, orderBy, query, []string{"catalog", "question", "answer"})
+	} else {
+		data = repository.List(&cases, page, size, orderBy)
+	}
 
 	caseResources := []models.CaseResource{}
 	for _, item := range cases {
@@ -43,10 +51,10 @@ func ListCases(c *gin.Context) {
 	}
 
 	paginationResource := base.PaginationResource{
-		TotalElement:   data.TotalRecords,
+		TotalElement:   data.TotalRecord,
 		DataCollection: caseResources,
-		CurrentPage:    data.CurrentPage,
-		TotalPages:     data.TotalPages,
+		CurrentPage:    data.Page,
+		TotalPages:     data.TotalPage,
 	}
 	c.JSON(http.StatusOK, paginationResource)
 }

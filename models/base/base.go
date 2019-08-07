@@ -28,8 +28,8 @@ func (base *Base) BeforeCreate(scope *gorm.Scope) error {
 
 // PaginationResource is external representor for paginated resource
 type PaginationResource struct {
-	TotalElement   int         `json:"totalElement"`
 	DataCollection interface{} `json:"dataCollection"`
-	CurrentPage    string      `json:"currentPage"`
-	TotalPages     int64       `json:"totalPages"`
+	TotalElement   int         `json:"totalElement"`
+	CurrentPage    int         `json:"currentPage"`
+	TotalPages     int         `json:"totalPages"`
 }

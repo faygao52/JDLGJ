@@ -8,6 +8,7 @@ import (
 
 	"net/http"
 
+	"github.com/biezhi/gorm-paginator/pagination"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -29,12 +30,19 @@ func CreateLawFirm(c *gin.Context) {
 
 //ListLawFirms retrieves all LawFirms
 func ListLawFirms(c *gin.Context) {
+	var data *pagination.Paginator
+
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
 	orderBy := strings.Split(c.DefaultQuery("orderBy", "reviews desc"), ",")
+	query := c.Query("q")
 	lawFirms := []models.LawFirm{}
-	data := repository.List(&lawFirms, page, size, orderBy)
 
+	if query != "" {
+		data = repository.SearchAll(&lawFirms, page, size, orderBy, query, []string{"title", "address"})
+	} else {
+		data = repository.List(&lawFirms, page, size, orderBy)
+	}
 	lawFirmResources := []models.LawFirmResource{}
 	for _, item := range lawFirms {
 		resource, ok := item.ToResource().(models.LawFirmResource)
@@ -44,10 +52,10 @@ func ListLawFirms(c *gin.Context) {
 	}
 
 	paginationResource := base.PaginationResource{
-		TotalElement:   data.TotalRecords,
+		TotalElement:   data.TotalRecord,
 		DataCollection: lawFirmResources,
-		CurrentPage:    data.CurrentPage,
-		TotalPages:     data.TotalPages,
+		CurrentPage:    data.Page,
+		TotalPages:     data.TotalPage,
 	}
 	c.JSON(http.StatusOK, paginationResource)
 }

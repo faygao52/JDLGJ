@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/biezhi/gorm-paginator/pagination"
 	uuid "github.com/satori/go.uuid"
 
 	"github.com/gin-gonic/gin"
@@ -29,11 +30,18 @@ func CreateServiceCenter(c *gin.Context) {
 
 //ListServiceCenters retrieves all ServiceCenters
 func ListServiceCenters(c *gin.Context) {
+	var data *pagination.Paginator
+
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
 	orderBy := strings.Split(c.DefaultQuery("orderBy", "id"), ",")
+	query := c.Query("q")
 	serviceCenters := []models.ServiceCenter{}
-	data := repository.List(&serviceCenters, page, size, orderBy)
+	if query != "" {
+		data = repository.SearchAll(&serviceCenters, page, size, orderBy, query, []string{"name", "address"})
+	} else {
+		data = repository.List(&serviceCenters, page, size, orderBy)
+	}
 
 	serviceCenterResources := []models.ServiceCenterResource{}
 	for _, item := range serviceCenters {
@@ -44,10 +52,10 @@ func ListServiceCenters(c *gin.Context) {
 	}
 
 	paginationResource := base.PaginationResource{
-		TotalElement:   data.TotalRecords,
+		TotalElement:   data.TotalRecord,
 		DataCollection: serviceCenterResources,
-		CurrentPage:    data.CurrentPage,
-		TotalPages:     data.TotalPages,
+		CurrentPage:    data.Page,
+		TotalPages:     data.TotalPage,
 	}
 	c.JSON(http.StatusOK, paginationResource)
 }
