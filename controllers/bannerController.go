@@ -30,7 +30,7 @@ func CreateBanner(c *gin.Context) {
 func ListBanners(c *gin.Context) {
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
-	orderBy := strings.Split(c.DefaultQuery("orderBy", "createdAt desc"), ",")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "created_at desc"), ",")
 	banners := []models.Banner{}
 	data := repository.List(&banners, page, size, orderBy)
 

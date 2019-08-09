@@ -32,7 +32,7 @@ func ListCases(c *gin.Context) {
 	var data *pagination.Paginator
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
-	orderBy := strings.Split(c.DefaultQuery("orderBy", "createdAt desc"), ",")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "created_at desc"), ",")
 	query := c.Query("q")
 	cases := []models.Case{}
 
