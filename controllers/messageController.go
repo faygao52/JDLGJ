@@ -30,7 +30,7 @@ func CreateMessage(c *gin.Context) {
 func ListMessages(c *gin.Context) {
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
-	orderBy := strings.Split(c.DefaultQuery("orderBy", "createdAt desc"), ",")
+	orderBy := strings.Split(c.DefaultQuery("orderBy", "created_at desc"), ",")
 	messages := []models.Message{}
 	data := repository.List(&messages, page, size, orderBy)
 

@@ -50,7 +50,7 @@ func List(collection interface{}, page string, size string, orderBy []string) *p
 		DB:      db.GetDB(),
 		Page:    pageInt,
 		Limit:   limit,
-		OrderBy: []string{"id desc"},
+		OrderBy: orderBy,
 		ShowSQL: true,
 	}, collection)
 }
@@ -73,7 +73,7 @@ func SearchAll(collection interface{}, page string, size string, orderBy []strin
 		DB:      db,
 		Page:    pageInt,
 		Limit:   limit,
-		OrderBy: []string{"id desc"},
+		OrderBy: orderBy,
 		ShowSQL: false,
 	}, collection)
 }

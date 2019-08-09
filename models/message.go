@@ -13,7 +13,8 @@ type (
 		Name        string `json:"name" binding:"required"`
 		Contact     string `json:"contact" binding:"required"`
 		Description string `json:"description"`
-		Answered    bool   `json:"visible"`
+		Answered    bool   `json:"answered"`
+		UserID      string `json:"userId"`
 	}
 
 	//MessageResource represents message for external usage
@@ -22,7 +23,7 @@ type (
 		Name        string    `json:"name" binding:"required"`
 		Contact     string    `json:"contact" binding:"required"`
 		Description string    `json:"description"`
-		Answered    bool      `json:"visible"`
+		Answered    bool      `json:"answered"`
 	}
 )
 
