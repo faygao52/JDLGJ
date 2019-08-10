@@ -35,7 +35,7 @@ func init() {
 	}
 
 	db = conn
-	db.Debug().AutoMigrate(&models.LawFirm{}, &models.Case{}, &models.ServiceCenter{}, &models.Banner{}, &models.Message{}) //Database migration
+	db.Debug().AutoMigrate(&models.LawFirm{}, &models.Case{}, &models.ServiceCenter{}, &models.Banner{}, &models.Message{}, &models.User{}, &models.WcUser{}) //Database migration
 }
 
 //GetDB ...

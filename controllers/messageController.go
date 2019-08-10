@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"jdlgj/auth"
 	"jdlgj/models"
 	"jdlgj/models/base"
 	"jdlgj/repository"
@@ -21,9 +22,16 @@ func CreateMessage(c *gin.Context) {
 		})
 		return
 	}
-
-	var resource = repository.Create(&message)
-	c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": resource})
+	claim, ok := c.Get("user")
+	if ok {
+		user, ok := claim.(auth.JWTClaims)
+		if ok {
+			message.UserID = user.OpenID
+			var resource = repository.Create(&message)
+			c.JSON(http.StatusCreated, gin.H{"status": http.StatusCreated, "message": resource})
+		}
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Not able to get current user"})
 }
 
 //ListMessages retrieves all messages

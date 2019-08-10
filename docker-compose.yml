@@ -27,6 +27,9 @@ services:
       PG_PASSWORD: root
       PG_HOST: postgres
       PG_DATABSE: jdlgj_development
+      APP_ID: ${APP_ID}
+      APP_SECRET: ${APP_SECRET}
+      SECRET: ${SECRET}
     networks:
       - development
     ports:

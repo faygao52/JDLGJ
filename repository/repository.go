@@ -23,6 +23,12 @@ func FindByID(value base.ModelInterface, id uuid.UUID) (interface{}, error) {
 	return value.ToResource(), err
 }
 
+//FindBy given a field find and return the first element
+func FindBy(field string, value base.ModelInterface, query string) (interface{}, error) {
+	err := db.GetDB().Where(field+" = ?", query).First(value).Error
+	return value.ToResource(), err
+}
+
 //Update a existing record
 func Update(c *gin.Context, value base.ModelInterface, id uuid.UUID) (interface{}, error) {
 	if _, err := FindByID(value, id); err != nil {

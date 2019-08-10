@@ -1,9 +1,11 @@
 package main
 
 import (
+	"jdlgj/auth"
 	"jdlgj/controllers"
+	"jdlgj/core"
+
 	"log"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,8 +16,14 @@ func main() {
 	router := gin.Default()
 
 	router.GET("/health", controllers.HealthGET)
+	authRoutes := router.Group("/auth")
+	{
+		authRoutes.GET("/wcLogin", controllers.LoginByWechat)
+		// auth.POST("/login", controllers.Login)
+	}
 
 	v1 := router.Group("/api/v1")
+	v1.Use(auth.Required())
 	{
 		lawFirm := v1.Group("/law-firms")
 		{
@@ -61,18 +69,11 @@ func main() {
 		}
 	}
 
-	if getEnv("ENV", "development") == "production" {
+	if core.GetEnv("ENV", "development") == "production" {
 		certsFolder := "./nginx/certs/api.jdlvguanjia.com/"
-		router.RunTLS(":"+getEnv("PORT", "8080"), certsFolder+"2544652_api.jdlvguanjia.com.pem", certsFolder+"2544652_api.jdlvguanjia.com.key")
+		router.RunTLS(":"+core.GetEnv("PORT", "8080"), certsFolder+"2544652_api.jdlvguanjia.com.pem", certsFolder+"2544652_api.jdlvguanjia.com.key")
 	} else {
-		router.Run(":" + getEnv("PORT", "8080"))
+		router.Run(":" + core.GetEnv("PORT", "8080"))
 	}
 
-}
-
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
 }
