@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"jdlgj/auth"
+	"jdlgj/core"
 	"jdlgj/models"
 	"jdlgj/repository"
 
@@ -28,7 +29,7 @@ func LoginByWechat(c *gin.Context) {
 	}
 	userResource, ok := resource.(models.WcUserResource)
 	if ok {
-		token, err := auth.SignWxToken(userResource.ID, 86400, "wechat", "user", userResource.OpenID)
+		token, err := auth.SignToken(userResource.ID, 86400, "wechat", "user", userResource.OpenID)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "JWT token signed failed"})
 			return
@@ -41,8 +42,80 @@ func LoginByWechat(c *gin.Context) {
 	}
 }
 
-//Login login user
-// func Login(c *gin.Context) {
-// 	c.JSON(http.StatusOK)
+//Register new user
+func Register(c *gin.Context) {
+	var user models.User
 
-// }
+	if err := c.BindJSON(&user); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var existingUser models.User
+	resource, err := repository.FindBy("username", &existingUser, user.Username)
+	if err != nil {
+		var password = core.HashAndSalt(user.Password)
+		resource = repository.Create(&models.User{Username: user.Username, Name: user.Name, Password: password, Role: user.Role})
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusBadRequest, "message": "Username already exist"})
+		return
+	}
+	userResource, ok := resource.(models.UserResource)
+	if ok {
+		token, err := auth.SignToken(userResource.ID, 86400, "react", userResource.Role, "")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "JWT token signed failed"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Type convert error"})
+		return
+	}
+}
+
+// LoginJSON stuff
+type LoginJSON struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+//Login let user login via dashboard
+func Login(c *gin.Context) {
+	var user models.User
+	var loginForm LoginJSON
+
+	if err := c.BindJSON(&loginForm); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	resource, err := repository.FindBy("username", &user, loginForm.Username)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusNotFound, "message": "Username doesn't exist"})
+		return
+	}
+	userResource, ok := resource.(models.UserResource)
+	if ok {
+		if !core.ComparePasswords(user.Password, loginForm.Password) {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusUnauthorized, "message": "Incorrect password"})
+			return
+		}
+
+		token, err := auth.SignToken(userResource.ID, 86400, "react", userResource.Role, "")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "JWT token signed failed"})
+			return
+		}
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+
+	} else {
+		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Type convert error"})
+		return
+	}
+}

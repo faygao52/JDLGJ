@@ -11,7 +11,8 @@ type (
 	//User backend user in this platform
 	User struct {
 		base.Base
-		Username string `json:"name" binding:"required"`
+		Username string `json:"username" binding:"required"`
+		Name     string `json:"name" binding:"required"`
 		Password string `json:"password" binding:"required"`
 		Role     string `json:"role" binding:"required"`
 	}

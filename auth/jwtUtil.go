@@ -21,8 +21,8 @@ type JWTClaims struct {
 	jwt.StandardClaims
 }
 
-//SignWxToken 生成token,uid用户id，expireSec过期秒数
-func SignWxToken(id uuid.UUID, expireSec int, issuer string, role string, openid string) (tokenStr string, err error) {
+//SignToken 生成token,uid用户id，expireSec过期秒数
+func SignToken(id uuid.UUID, expireSec int, issuer string, role string, openid string) (tokenStr string, err error) {
 	sec := time.Duration(expireSec)
 	expire := time.Now().Add(time.Second * sec).Unix()
 	claims := JWTClaims{ID: id, Role: role, Issuer: issuer, Expire: expire, OpenID: openid}

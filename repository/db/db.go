@@ -2,8 +2,8 @@ package db
 
 import (
 	"fmt"
+	"jdlgj/core"
 	"jdlgj/models"
-	"os"
 
 	"github.com/jinzhu/gorm"
 
@@ -13,19 +13,12 @@ import (
 
 var db *gorm.DB //database
 
-func getEnv(key, fallback string) string {
-	if value, ok := os.LookupEnv(key); ok {
-		return value
-	}
-	return fallback
-}
-
 func init() {
 
-	username := getEnv("PG_USER", "jingyi")
-	password := getEnv("PG_PASSWORD", "")
-	dbName := getEnv("PG_DATABSE", "jdlgj")
-	dbHost := getEnv("PG_HOST", "localhost")
+	username := core.GetEnv("PG_USER", "jingyi")
+	password := core.GetEnv("PG_PASSWORD", "")
+	dbName := core.GetEnv("PG_DATABSE", "jdlgj")
+	dbHost := core.GetEnv("PG_HOST", "localhost")
 
 	dbURI := fmt.Sprintf("host=%s user=%s dbname=%s sslmode=disable password=%s", dbHost, username, dbName, password) //Build connection string
 

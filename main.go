@@ -19,7 +19,8 @@ func main() {
 	authRoutes := router.Group("/auth")
 	{
 		authRoutes.GET("/wcLogin", controllers.LoginByWechat)
-		// auth.POST("/login", controllers.Login)
+		authRoutes.POST("/login", controllers.Login)
+		authRoutes.POST("/signup", controllers.Register)
 	}
 
 	v1 := router.Group("/api/v1")
