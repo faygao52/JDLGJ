@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/biezhi/gorm-paginator/pagination"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
 )
@@ -36,11 +37,18 @@ func CreateMessage(c *gin.Context) {
 
 //ListMessages retrieves all messages
 func ListMessages(c *gin.Context) {
+	var data *pagination.Paginator
+
 	page := c.DefaultQuery("page", "0")
 	size := c.DefaultQuery("size", "10")
 	orderBy := strings.Split(c.DefaultQuery("orderBy", "created_at desc"), ",")
+	answer := c.Query("answered")
 	messages := []models.Message{}
-	data := repository.List(&messages, page, size, orderBy)
+	if answer != "" {
+		data = repository.FilterBy(&messages, page, size, orderBy, answer, "answered")
+	} else {
+		data = repository.List(&messages, page, size, orderBy)
+	}
 
 	reosources := []models.MessageResource{}
 	for _, item := range messages {
@@ -76,4 +84,25 @@ func DeleteMessage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": "Message deleted successfully!"})
+}
+
+//UpdateMessage updates an existing message
+func UpdateMessage(c *gin.Context) {
+	id, err := uuid.FromString(c.Param("id"))
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var message models.Message
+	resource, err := repository.Update(c, &message, id)
+
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"status": http.StatusNotFound, "message": "Cannot find message!"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "message": resource})
 }

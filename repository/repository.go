@@ -83,3 +83,18 @@ func SearchAll(collection interface{}, page string, size string, orderBy []strin
 		ShowSQL: false,
 	}, collection)
 }
+
+//FilterBy filter results by value and return pagination result
+func FilterBy(collection interface{}, page string, size string, orderBy []string, query string, field string) *pagination.Paginator {
+	db := db.GetDB()
+	db = db.Where(field+" = ?", query)
+	pageInt, _ := strconv.Atoi(page)
+	limit, _ := strconv.Atoi(size)
+	return pagination.Paging(&pagination.Param{
+		DB:      db,
+		Page:    pageInt,
+		Limit:   limit,
+		OrderBy: orderBy,
+		ShowSQL: false,
+	}, collection)
+}

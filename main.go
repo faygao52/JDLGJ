@@ -72,6 +72,7 @@ func main() {
 		{
 			message.GET("", controllers.ListMessages)
 			message.POST("/", controllers.CreateMessage)
+			message.PUT("/:id", controllers.UpdateMessage)
 			message.DELETE("/:id", controllers.DeleteMessage)
 		}
 	}
