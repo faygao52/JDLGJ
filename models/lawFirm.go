@@ -16,7 +16,7 @@ type (
 		Address     string  `json:"address"  binding:"required"`
 		Description string  `json:"description"`
 		Reviews     float32 `json:"review"`
-		Services    int     `jons:"services"`
+		Services    int     `json:"services"`
 		Icon        string  `json:"icon"`
 		CoverImage  string  `json:"coverImage"`
 	}
@@ -30,7 +30,7 @@ type (
 		Address     string    `json:"address"`
 		Description string    `json:"description"`
 		Reviews     float32   `json:"review"`
-		Services    int       `jons:"services"`
+		Services    int       `json:"services"`
 		Icon        string    `json:"icon"`
 		CoverImage  string    `json:"coverImage"`
 	}

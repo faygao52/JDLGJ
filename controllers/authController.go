@@ -69,7 +69,7 @@ func Register(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "JWT token signed failed"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "user": userResource, "token": token})
 
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Type convert error"})
@@ -112,7 +112,7 @@ func Login(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "JWT token signed failed"})
 			return
 		}
-		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "token": token})
+		c.JSON(http.StatusOK, gin.H{"status": http.StatusOK, "user": userResource, "token": token})
 
 	} else {
 		c.JSON(http.StatusInternalServerError, gin.H{"status": http.StatusInternalServerError, "message": "Type convert error"})
