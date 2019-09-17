@@ -34,6 +34,18 @@ services:
       - development
     ports:
       - 8080:8080
+  web:
+    image: jingyigao/jdlgj-dashboard:1.0.0
+    container_name: dashboard
+    environment:
+      NODE_ENV: development
+      REACT_APP_API_URL: http://http://localhost:8080
+    networks:
+      - development
+    expose:
+      - 80
+    ports:
+      - 80:80
   postgres:
     container_name: pg
     image: postgres:11.4
